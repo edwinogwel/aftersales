@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from .. import schemas, database, models
 from typing import Optional
+from .. import schemas, database, models
 
 
 router = APIRouter(
@@ -47,34 +47,21 @@ def update(job_id: int, job_status: Optional[str] = None, deadline: Optional[str
     return "updated"
 
 
-# Update job_status vs Mark as completed ?
-@router.post("/{id}/complete")
-def complete_service_job(job_id: int, db: Session = Depends(get_db)):
-    """ Mark a job as completed """
-    job = db.query(models.ServiceJob).filter(
-        models.ServiceJob.job_id == job_id).first()
-
-    if not job:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Service job with id {job_id} not found")
-
-    if job.job_status.lower() == "completed":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Service job already marked as completed")
-
-    job.job_status = "Completed"  # type: ignore
-
-    db.commit()
-
-    return "marked as complete"
-
-
 @router.get("/all")
 def show_all(db: Session = Depends(get_db)):
     """ Get all active jobs """
     jobs = db.query(models.ServiceJob).all()
 
     return jobs
+
+
+@router.get("/completed")
+def completed_jobs(db: Session = Depends(get_db)):
+    """ Get all completed jobs """
+    completed_jobs = db.query(models.ServiceJob).filter(
+        models.ServiceJob.job_status.ilike("Completed")).all()
+
+    return completed_jobs
 
 
 @router.get("/{id}")

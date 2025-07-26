@@ -1,11 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional
+from datetime import datetime
+from enum import Enum
+
+
+class JobStatus(str, Enum):
+    assigned = "Assigned"
+    waiting_parts = "Waiting Parts"
+    in_progress = "In Progress"
+    completed = "Completed"
 
 
 class ServiceJob(BaseModel):
     customer: str
-    job_status: str
-    deadline: str  # f"{obj.strftime("%b %d, %Y")}"
+    job_status: JobStatus
+    deadline: datetime      # f"{obj.strftime("%b %d, %Y")}"
 
 
 class ServiceRequests(BaseModel):
@@ -13,7 +21,7 @@ class ServiceRequests(BaseModel):
     bike_id: str
     service_type: str
     status: str
-    submitted: str
+    submitted: datetime
 
 
 class JobCard(BaseModel):

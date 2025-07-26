@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime, timezone
 from .database import Base
 
 
@@ -8,7 +9,7 @@ class ServiceJob(Base):
     job_id = Column(Integer, primary_key=True, index=True)
     customer = Column(String)
     job_status = Column(String)
-    deadline = Column(String)
+    deadline = Column(DateTime)
 
 
 class ServiceRequest(Base):
@@ -19,7 +20,7 @@ class ServiceRequest(Base):
     bike_id = Column(String)
     service_type = Column(String)
     status = Column(String)
-    submitted = Column(String)
+    submitted = Column(DateTime, default=datetime.now(timezone.utc))
 
 
 class JobCard(Base):
