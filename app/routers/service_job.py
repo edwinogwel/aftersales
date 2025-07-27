@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Optional
 from .. import schemas, database, models
 
 
@@ -25,7 +24,7 @@ def create(request: schemas.ServiceJob, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
-def update(job_id: int, job_status: Optional[str] = None, deadline: Optional[str] = None, db: Session = Depends(get_db)):
+def update(job_id: int, request: schemas.JobUpdateRequest, db: Session = Depends(get_db)):
     """ Update status or deadline of a job """
     job = db.query(models.ServiceJob).filter(
         models.ServiceJob.job_id == job_id).first()
@@ -34,13 +33,13 @@ def update(job_id: int, job_status: Optional[str] = None, deadline: Optional[str
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Service job with id {id} not found")
 
-    if job_status is not None:
+    if request.job_status:
         db.query(models.ServiceJob).filter(
-            models.ServiceJob.job_id == job_id).update({"job_status": job_status})
+            models.ServiceJob.job_id == job_id).update({"job_status": request.job_status})
 
-    if deadline is not None:
+    if request.deadline:
         db.query(models.ServiceJob).filter(
-            models.ServiceJob.job_id == job_id).update({"deadline": deadline})
+            models.ServiceJob.job_id == job_id).update({"deadline": request.deadline})
 
     db.commit()
 
@@ -57,11 +56,15 @@ def show_all(db: Session = Depends(get_db)):
 
 @router.get("/completed")
 def completed_jobs(db: Session = Depends(get_db)):
-    """ Get all completed jobs """
-    completed_jobs = db.query(models.ServiceJob).filter(
-        models.ServiceJob.job_status.ilike("Completed")).all()
+    """ Get completed service jobs count """
+    completed_jobs = db.query(
+        models.ServiceJob).filter_by(job_status="Completed")
 
-    return completed_jobs
+    if not completed_jobs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="There are no completed service jobs at the moment")
+
+    return completed_jobs.count()
 
 
 @router.get("/{id}")
