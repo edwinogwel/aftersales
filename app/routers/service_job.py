@@ -67,6 +67,21 @@ def completed_jobs(db: Session = Depends(get_db)):
     return completed_jobs.count()
 
 
+@router.get("/active")
+def active_jobs(db: Session = Depends(get_db)):
+    """ Get active service jobs count """
+    active_statuses = ["Assigned", "Waiting Parts", "In Progress"]
+
+    active_jobs = db.query(
+        models.ServiceJob).filter(models.ServiceJob.job_status.in_(active_statuses))
+
+    if not active_jobs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="There are no active service jobs at the moment")
+
+    return active_jobs.count()
+
+
 @router.get("/{id}")
 def show(job_id: int, db: Session = Depends(get_db)):
     """ Get a specific job by ID"""
