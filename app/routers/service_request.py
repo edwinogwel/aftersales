@@ -14,7 +14,7 @@ get_db = database.get_db
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(request: schemas.ServiceRequests, db: Session = Depends(get_db)):
-    """ Submit a new request """
+    """ Submit a new service request """
     new_request = models.ServiceRequest(customer=request.customer, bike_id=request.bike_id,
                                         service_type=request.service_type, status=request.status)
     db.add(new_request)
@@ -26,6 +26,7 @@ def create(request: schemas.ServiceRequests, db: Session = Depends(get_db)):
 
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
 def update(id: int, service_status: Optional[str] = None, db: Session = Depends(get_db)):
+    """ Update service request status """
     service_request = db.query(models.ServiceRequest).filter(
         models.ServiceRequest.id == id).first()
 
@@ -44,6 +45,7 @@ def update(id: int, service_status: Optional[str] = None, db: Session = Depends(
 
 @router.get("/pending")
 def pending_request(db: Session = Depends(get_db)):
+    """ Get pending service requests count """
     pending_requests = db.query(
         models.ServiceRequest).filter_by(status="Pending")
 
@@ -54,8 +56,29 @@ def pending_request(db: Session = Depends(get_db)):
     return pending_requests.count()
 
 
+@router.get("/all")
+def show_all(db: Session = Depends(get_db)):
+    """ Get all service requests """
+    service_requests = db.query(models.ServiceRequest).all()
+
+    return service_requests
+
+
+@router.get("/{id}")
+def show(id: int, db: Session = Depends(get_db)):
+    service_request = db.query(models.ServiceRequest).filter(
+        models.ServiceRequest.id == id).first()
+
+    if not service_request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Service request with id {id} not found")
+
+    return service_request
+
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def destroy(id: int, db: Session = Depends(get_db)):
+    """ Delete a service request """
     service_request = db.query(models.ServiceRequest).filter(
         models.ServiceRequest.id == id).delete(synchronize_session=False)
 

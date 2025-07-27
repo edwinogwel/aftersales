@@ -21,8 +21,9 @@ class JobUpdateRequest(BaseModel):
     @model_validator(mode="after")
     def check_at_least_one_field(self) -> "JobUpdateRequest":
         if not self.job_status and not self.deadline:
-            raise ValueError("At least one of 'job_status' or 'deadline' must be provided")
-        
+            raise ValueError(
+                "At least one of 'job_status' or 'deadline' must be provided")
+
         return self
 
 
