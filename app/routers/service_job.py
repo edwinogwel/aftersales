@@ -48,7 +48,7 @@ def update(job_id: int, request: schemas.JobUpdateRequest, db: Session = Depends
 
 @router.get("/all")
 def show_all(db: Session = Depends(get_db)):
-    """ Get all active jobs """
+    """ Get all service jobs """
     jobs = db.query(models.ServiceJob).all()
 
     return jobs
