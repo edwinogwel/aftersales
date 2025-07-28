@@ -54,54 +54,93 @@ def show_all(db: Session = Depends(get_db)):
     return jobs
 
 
-@router.get("/completed")
-def completed(db: Session = Depends(get_db)):
+@router.get("/completed/count")
+def completed_count(db: Session = Depends(get_db)):
     """ Get completed service jobs count """
     completed_jobs = db.query(
         models.ServiceJob).filter_by(job_status="Completed")
 
     if not completed_jobs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="There are no completed service jobs at the moment")
+                            detail="No completed service jobs at the moment")
 
     return completed_jobs.count()
 
 
-@router.get("/active")
-def active(db: Session = Depends(get_db)):
+@router.get("/active/count")
+def active_count(db: Session = Depends(get_db)):
     """ Get active service jobs(in progress) count """
     active_jobs = db.query(
         models.ServiceJob).filter_by(job_status="In Progress")
 
     if not active_jobs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="There are no active service jobs at the moment")
+                            detail="No active service jobs at the moment")
 
     return active_jobs.count()
 
 
-@router.get("/pending")
-def pending(db: Session = Depends(get_db)):
+@router.get("/pending/count")
+def pending_count(db: Session = Depends(get_db)):
     """ Get jobs awaiting service count """
     pending_jobs = db.query(models.ServiceJob).filter_by(job_status="Pending")
 
     if not pending_jobs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="There are no pending service jobs at the moment")
+                            detail="No pending service jobs at the moment")
 
     return pending_jobs.count()
 
 
-@router.get("/on-hold")
-def on_hold(db: Session = Depends(get_db)):
-    """ Get jobs waiting for parts/approval """
+@router.get("/on-hold/count")
+def on_hold_count(db: Session = Depends(get_db)):
+    """ Get jobs waiting for parts/approval count """
     jobs_on_hold = db.query(models.ServiceJob).filter_by(job_status="On Hold")
 
     if not jobs_on_hold:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="There are no jobs on hold at the moment")
+                            detail="No jobs on hold at the moment")
 
     return jobs_on_hold.count()
+
+
+@router.get("/pending")
+def pending(db: Session = Depends(get_db)):
+    """ Get pending jobs """
+    pending_jobs = db.query(
+        models.ServiceJob).filter_by(job_status="Pending").all()
+
+    if not pending_jobs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Pending jobs not found")
+
+    return pending_jobs
+
+
+@router.get("/in-progress")
+def in_progress(db: Session = Depends(get_db)):
+    """ Get jobs in progress """
+    processing_jobs = db.query(
+        models.ServiceJob).filter_by(job_status="In Progress").all()
+
+    if not processing_jobs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Jobs in progress not found")
+
+    return processing_jobs
+
+
+@router.get("/on-hold")
+def on_hold(db: Session = Depends(get_db)):
+    """ Get jobs on hold """
+    on_hold = db.query(
+        models.ServiceJob).filter_by(job_status="On Hold").all()
+
+    if not on_hold:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Jobs on hold not found")
+
+    return on_hold
 
 
 @router.get("/{id}")
