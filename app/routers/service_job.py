@@ -14,8 +14,8 @@ get_db = database.get_db
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(request: schemas.ServiceJob, db: Session = Depends(get_db)):
     """ Create a new service job """
-    new_service = models.ServiceJob(
-        customer=request.customer, job_status=request.job_status, deadline=request.deadline)
+    new_service = models.ServiceJob(bike_id=request.bike_id, customer=request.customer,
+                                    job_status=request.job_status, priority=request.priority, est_completion=request.est_completion)
     db.add(new_service)
     db.commit()
     db.refresh(new_service)
@@ -24,10 +24,10 @@ def create(request: schemas.ServiceJob, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
-def update(job_id: int, request: schemas.JobUpdateRequest, db: Session = Depends(get_db)):
-    """ Update status or deadline of a job """
+def update(id: int, request: schemas.JobUpdateRequest, db: Session = Depends(get_db)):
+    """ Update status or estimated completion of a job """
     job = db.query(models.ServiceJob).filter(
-        models.ServiceJob.job_id == job_id).first()
+        models.ServiceJob.job_id == id).first()
 
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -35,11 +35,11 @@ def update(job_id: int, request: schemas.JobUpdateRequest, db: Session = Depends
 
     if request.job_status:
         db.query(models.ServiceJob).filter(
-            models.ServiceJob.job_id == job_id).update({"job_status": request.job_status})
+            models.ServiceJob.job_id == id).update({"job_status": request.job_status})
 
-    if request.deadline:
+    if request.est_completion:
         db.query(models.ServiceJob).filter(
-            models.ServiceJob.job_id == job_id).update({"deadline": request.deadline})
+            models.ServiceJob.job_id == id).update({"est_completion": request.est_completion})
 
     db.commit()
 
@@ -55,7 +55,7 @@ def show_all(db: Session = Depends(get_db)):
 
 
 @router.get("/completed")
-def completed_jobs(db: Session = Depends(get_db)):
+def completed(db: Session = Depends(get_db)):
     """ Get completed service jobs count """
     completed_jobs = db.query(
         models.ServiceJob).filter_by(job_status="Completed")
@@ -68,12 +68,10 @@ def completed_jobs(db: Session = Depends(get_db)):
 
 
 @router.get("/active")
-def active_jobs(db: Session = Depends(get_db)):
-    """ Get active service jobs count """
-    active_statuses = ["Assigned", "Waiting Parts", "In Progress"]
-
+def active(db: Session = Depends(get_db)):
+    """ Get active service jobs(in progress) count """
     active_jobs = db.query(
-        models.ServiceJob).filter(models.ServiceJob.job_status.in_(active_statuses))
+        models.ServiceJob).filter_by(job_status="In Progress")
 
     if not active_jobs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -82,11 +80,35 @@ def active_jobs(db: Session = Depends(get_db)):
     return active_jobs.count()
 
 
+@router.get("/pending")
+def pending(db: Session = Depends(get_db)):
+    """ Get jobs awaiting service count """
+    pending_jobs = db.query(models.ServiceJob).filter_by(job_status="Pending")
+
+    if not pending_jobs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="There are no pending service jobs at the moment")
+
+    return pending_jobs.count()
+
+
+@router.get("/on-hold")
+def on_hold(db: Session = Depends(get_db)):
+    """ Get jobs waiting for parts/approval """
+    jobs_on_hold = db.query(models.ServiceJob).filter_by(job_status="On Hold")
+
+    if not jobs_on_hold:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="There are no jobs on hold at the moment")
+
+    return jobs_on_hold.count()
+
+
 @router.get("/{id}")
-def show(job_id: int, db: Session = Depends(get_db)):
-    """ Get a specific job by ID"""
+def show(id: int, db: Session = Depends(get_db)):
+    """ Get a specific job by job ID"""
     job = db.query(models.ServiceJob).filter(
-        models.ServiceJob.job_id == job_id).first()
+        models.ServiceJob.job_id == id).first()
 
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -96,10 +118,10 @@ def show(job_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def destroy(job_id: int, db: Session = Depends(get_db)):
+def destroy(id: int, db: Session = Depends(get_db)):
     """ Delete a job """
     job = db.query(models.ServiceJob).filter(
-        models.ServiceJob.job_id == job_id).delete(synchronize_session=False)
+        models.ServiceJob.job_id == id).delete(synchronize_session=False)
 
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
