@@ -1,39 +1,48 @@
 from pydantic import BaseModel, model_validator
-from datetime import datetime
-from enum import Enum
+from datetime import date
 from typing import Optional, Literal
+from enum import Enum
 
 
-# Service jobs
+# Service Jobs
 class JobStatus(str, Enum):
+    on_hold = "On Hold"
+    pending = "Pending"
     assigned = "Assigned"
-    waiting_parts = "Waiting Parts"
     in_progress = "In Progress"
     completed = "Completed"
 
 
 class JobUpdateRequest(BaseModel):
-    job_status: Optional[Literal["Assigned",
-                                 "Waiting Parts", "In Progress", "Completed"]] = None
-
-    deadline: Optional[datetime] = None
+    job_status: Optional[Literal["On Hold", "Pending",
+                                 "Assigned", "In Progress", "Completed"]] = None
+    est_completion: Optional[date] = None
 
     @model_validator(mode="after")
     def check_at_least_one_field(self) -> "JobUpdateRequest":
-        if not self.job_status and not self.deadline:
+        if not self.job_status and not self.est_completion:
             raise ValueError(
-                "At least one of 'job_status' or 'deadline' must be provided")
+                "At least one of 'job_status' or 'est. completion' must be provided")
 
         return self
 
 
+class Priority(str, Enum):
+    low = "Low"
+    medium = "Medium"
+    high = "High"
+
+
 class ServiceJob(BaseModel):
+    bike_id: str
     customer: str
     job_status: JobStatus
-    deadline: datetime      # f"{obj.strftime("%b %d, %Y")}"
+    priority: Priority
+    # created: automated
+    est_completion: date
 
 
-# Service requests
+# Service Requests
 class ServiceStatus(str, Enum):
     pending = "Pending"
     scheduled = "Scheduled"
@@ -51,7 +60,7 @@ class ServiceRequests(BaseModel):
     bike_id: str
     service_type: ServiceType
     status: ServiceStatus
-    submitted: datetime
+    submitted: date
 
 
 class JobCard(BaseModel):
