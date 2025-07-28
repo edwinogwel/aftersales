@@ -7,7 +7,7 @@ class ServiceJob(Base):
     __tablename__ = "service-jobs"
 
     job_id = Column(Integer, primary_key=True, index=True)
-    bike_id = Column(String)
+    bike_id = Column(String, unique=True)
     customer = Column(String)
     job_status = Column(String)
     priority = Column(String)
@@ -20,10 +20,12 @@ class ServiceRequest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     customer = Column(String)
-    bike_id = Column(String)
+    bike_id = Column(String, unique=True)
     service_type = Column(String)
     status = Column(String)
-    submitted = Column(Date, default=date.today)
+    priority = Column(String)
+    created = Column(Date, default=(date.today))
+    last_updated = Column(Date)
 
 
 class JobCard(Base):
@@ -33,11 +35,11 @@ class JobCard(Base):
     customer = Column(String)
     contact = Column(Integer)
     date_issued = Column(String)
-    bike_id = Column(String)
+    bike_id = Column(String, unique=True)
     # Vehicle info
     odometer_reading = Column(String)
     bike_model = Column(String)
-    license_plate = Column(String)
+    license_plate = Column(String, unique=True)
     service_type = Column(String)
     issue_description = Column(String)
     # Parts required -> should allow multiple entries
