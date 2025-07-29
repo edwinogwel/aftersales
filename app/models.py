@@ -19,12 +19,16 @@ class ServiceRequest(Base):
     __tablename__ = "service-requests"
 
     id = Column(Integer, primary_key=True, index=True)
-    customer = Column(String)
     bike_id = Column(String, unique=True)
+    customer = Column(String)
     service_type = Column(String)
-    status = Column(String)
     priority = Column(String)
-    created = Column(Date, default=(date.today))
+    status = Column(String)
+    problem_description = Column(String)
+    created = Column(Date, default=date.today)
+    request_date = Column(Date)
+    customer_phone = Column(Integer)
+    additional_notes = Column(String, default="")
     last_updated = Column(Date)
 
 

@@ -31,6 +31,7 @@ class Priority(str, Enum):
     low = "Low"
     medium = "Medium"
     high = "High"
+    urgent = "Urgent"
 
 
 class ServiceJob(BaseModel):
@@ -49,8 +50,9 @@ class ServiceUpdateRequest(BaseModel):
 
 class ServiceType(str, Enum):
     repair = "Repair"
-    maintenance = "Maintenance"
-    inspection = "Inspection"
+    maintenance = "Regular Maintenance"
+    inspection = "Technical Inspection"
+    upgrade = "Component Upgrade"
 
 
 class ServiceStatus(str, Enum):
@@ -62,11 +64,15 @@ class ServiceStatus(str, Enum):
 
 
 class ServiceRequests(BaseModel):
-    customer: str
     bike_id: str
+    customer: str
     service_type: ServiceType
-    status: ServiceStatus
     priority: Priority
+    status: ServiceStatus
+    problem_description: str
+    request_date: date
+    customer_phone: int
+    additional_notes: Optional[str] = None
     last_updated: date
 
 
