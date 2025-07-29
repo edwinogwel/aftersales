@@ -14,8 +14,8 @@ get_db = database.get_db
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(request: schemas.ServiceRequests, db: Session = Depends(get_db)):
     """ Submit a new service request """
-    new_request = models.ServiceRequest(customer=request.customer, bike_id=request.bike_id, service_type=request.service_type,
-                                        status=request.status, priority=request.priority, last_updated=request.last_updated)
+    new_request = models.ServiceRequest(bike_id=request.bike_id, customer=request.customer, service_type=request.service_type, priority=request.priority, status=request.status,
+                                        problem_description=request.problem_description, request_date=request.request_date, customer_phone=request.customer_phone, additional_notes=request.additional_notes, last_updated=request.last_updated)
     db.add(new_request)
     db.commit()
     db.refresh(new_request)
