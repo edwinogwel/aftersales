@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from . import models
 from .database import engine
-from .routers import service_job, service_request
+from .routers import service_job, service_request, part_inventory
 
 app = FastAPI()
 
 models.Base.metadata.create_all(engine)
 
+app.include_router(part_inventory.router)
 app.include_router(service_job.router)
 app.include_router(service_request.router)
 

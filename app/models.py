@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Float
 from datetime import date
 from .database import Base
 
@@ -30,6 +30,19 @@ class ServiceRequest(Base):
     customer_phone = Column(Integer)
     additional_notes = Column(String, default="")
     last_updated = Column(Date)
+
+
+class PartInventory(Base):
+    __tablename__ = "parts-inventory"
+
+    id = Column(Integer, primary_key=True, index=True)
+    part_name = Column(String)
+    category = Column(String)
+    stock_status = Column(String)
+    quantity = Column(Integer)
+    location = Column(String)
+    supplier = Column(String)
+    unit_price = Column(Float)
 
 
 class JobCard(Base):

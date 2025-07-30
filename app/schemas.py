@@ -72,8 +72,34 @@ class ServiceRequests(BaseModel):
     problem_description: str
     request_date: date
     customer_phone: int
-    additional_notes: Optional[str] = None
+    additional_notes: Optional[str]
     last_updated: date
+
+
+# Part Inventory
+class PartCategory(str, Enum):
+    components = "Components"
+    electrical = "Electrical"
+    mechanical = "Mechanical"
+
+
+class StockStatus(str, Enum):
+    low_stock = "Low Stock"
+    in_stock = "In Stock"
+    out_of_stock = "Out of Stock"
+
+
+class PartInventory(BaseModel):
+    part_name: str
+    category: PartCategory
+    quantity: int
+    location: str
+    supplier: str
+    unit_price: float
+    # stock_status: Optional[StockStatus] = None  # auto-set
+
+    # class Config:
+    #     orm_mode = True
 
 
 # Job Card
