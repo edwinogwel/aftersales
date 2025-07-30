@@ -65,7 +65,7 @@ sqlite3 app/db/aftersale.db
 
 ## 5. Run the Server
 ```bash
-uvicorn app:main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ## 🛠️ Future Improvements
