@@ -14,8 +14,13 @@ get_db = database.get_db
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(request: schemas.ServiceJob, db: Session = Depends(get_db)):
     """ Create a new service job """
-    new_service = models.ServiceJob(bike_id=request.bike_id, customer=request.customer,
-                                    job_status=request.job_status, priority=request.priority, est_completion=request.est_completion)
+    new_service = models.ServiceJob(
+        bike_id=request.bike_id,
+        customer=request.customer,
+        job_status=request.job_status,
+        priority=request.priority,
+        est_completion=request.est_completion
+    )
     db.add(new_service)
     db.commit()
     db.refresh(new_service)
@@ -167,5 +172,3 @@ def destroy(id: int, db: Session = Depends(get_db)):
                             detail=f"Service job with id {id} not found")
 
     db.commit()
-
-    return "deleted"
