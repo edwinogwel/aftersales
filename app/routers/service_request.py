@@ -14,8 +14,18 @@ get_db = database.get_db
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(request: schemas.ServiceRequests, db: Session = Depends(get_db)):
     """ Submit a new service request """
-    new_request = models.ServiceRequest(bike_id=request.bike_id, customer=request.customer, service_type=request.service_type, priority=request.priority, status=request.status,
-                                        problem_description=request.problem_description, request_date=request.request_date, customer_phone=request.customer_phone, additional_notes=request.additional_notes, last_updated=request.last_updated)
+    new_request = models.ServiceRequest(
+        bike_id=request.bike_id,
+        customer=request.customer,
+        service_type=request.service_type,
+        priority=request.priority,
+        status=request.status,
+        problem_description=request.problem_description,
+        request_date=request.request_date,
+        customer_phone=request.customer_phone,
+        additional_notes=request.additional_notes,
+        last_updated=request.last_updated
+    )
     db.add(new_request)
     db.commit()
     db.refresh(new_request)
@@ -183,5 +193,3 @@ def destroy(id: int, db: Session = Depends(get_db)):
                             detail=f"Service request with id {id} not found")
 
     db.commit()
-
-    return "deleted"
