@@ -27,7 +27,7 @@ class ServiceRequest(Base):
     problem_description = Column(String)
     created = Column(Date, default=date.today)
     request_date = Column(Date)
-    customer_phone = Column(Integer)
+    customer_phone = Column(String)
     additional_notes = Column(String, default="")
     last_updated = Column(Date)
 

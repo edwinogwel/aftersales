@@ -71,8 +71,8 @@ class ServiceRequests(BaseModel):
     status: ServiceStatus
     problem_description: str
     request_date: date
-    customer_phone: int
-    additional_notes: Optional[str]
+    customer_phone: str
+    additional_notes: Optional[str] = None
     last_updated: date
 
 
